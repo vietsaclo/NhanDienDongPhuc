@@ -12,6 +12,7 @@ from sklearn.preprocessing import StandardScaler
 import pickle
 
 DIR_INPUT = 'D:/[AI]-NhanDangDongPhuc_Digitech/NhanDienDongPhuc/Data/Train'
+DIR_INPUT_TEST = 'D:/[AI]-NhanDangDongPhuc_Digitech/imgs/test'
 
 def hog(img_gray, cell_size=8, block_size=2, bins=9):
     img = img_gray
@@ -157,27 +158,26 @@ def fun_putText(image, mess):
 
 def fun_test_v1():
     model = fun_load_model()
-    for _dir in libs.fun_getFileNames(DIR_INPUT):
-        dirs = DIR_INPUT + '/' + _dir
-        for f in libs.fun_getFileNames(dirs):
-            img_path = dirs + '/' + f
-            img = fun_read_img_using_for_hog(img_path)
-            out_hog = hog(img)
+    for f in libs.fun_getFileNames(DIR_INPUT_TEST):
+        img_path = DIR_INPUT_TEST + '/' + f
+        img = fun_read_img_using_for_hog(img_path)
+        out_hog = hog(img)
 
-            # print(out_hog)
-            arr = []
-            arr.append(out_hog)
+        # print(out_hog)
+        arr = []
+        arr.append(out_hog)
 
-            pre = model.predict(arr)
-            img = cv2.resize(img, (int(720 * 0.6), int(1280 * 0.6)))
-            if pre == 0:
-                img = fun_putText(img, 'TH')
-            else:
-                img = fun_putText(img, 'CN')
-            
-            cv2.imshow('pre', img)
-            cv2.waitKey()
+        pre = model.predict(arr)
+        img = cv2.resize(img, (int(720 * 0.6), int(1280 * 0.6)))
+        if pre == 0:
+            img = fun_putText(img, 'TH')
+        else:
+            img = fun_putText(img, 'CN')
+        
+        cv2.imshow('pre', img)
+        cv2.waitKey()
 
 if __name__ == "__main__":
     fun_test_v1()
-
+    # fun_train_and_save()
+    # fun_hog_to_csv()

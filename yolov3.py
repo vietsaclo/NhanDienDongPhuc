@@ -132,14 +132,17 @@ def fun_DetectObject(sourceImage, classesName= 0, isShowDetectionFull: bool= Fal
   return imgsGet
 
 if __name__ == '__main__':
+    count_id = 109
+
     index = 0
-    DIR_ = 'D:/imgs/CongNhan'
-    fileNames = os.listdir(DIR_)
+    DIR_ = 'D:/[AI]-NhanDangDongPhuc_Digitech/imgs'
+    fileNames = os.listdir(DIR_ + '/th')
     max_ = len(fileNames)
     for i in range(max_):
-        imageGet = fun_DetectObject(sourceImage= DIR_ + '/' + fileNames[i])
-        for I in range(len(imageGet)):
-            imgResize = cv2.resize(imageGet[I][0], (200, 500))
-            cv2.imshow('f', imgResize)
-            cv2.waitKey()
-        print('done: {0}/{1}'.format(i+1, max_))
+      fileName = DIR_ + '/th/' + fileNames[i]
+      imageGet = fun_DetectObject(sourceImage= fileName)
+      for I in range(len(imageGet)):
+          imgResize = cv2.resize(imageGet[I][0], (200, 500))
+          cv2.imwrite(DIR_ + '/' + 'out_th/th_' + str(count_id) + '.jpg', imgResize)
+          count_id += 1
+      print('done: {0}/{1}'.format(i+1, max_))
