@@ -27,6 +27,60 @@ def fun_getColorName_threading(csv ,R,G,B, vector: list):
     vector.append(index)
     print(index)
 
+def fun_getIndexVectorFromRGB(ColorValue, max_value_in_columns_per, columns_per, SoLan: int):
+    index = (columns_per * SoLan) + (ColorValue / max_value_in_columns_per)
+    return int(index)
+
+def fun_image_to_vector_myCustom(img):
+    num_chanel = 3
+    columns_per = 32
+    max_value_in_columns_per = 8
+
+    # initial values
+    vector = []
+    for _ in range(columns_per * num_chanel):
+        vector.append(0)
+    
+    if len(img) != 60 or len(img[0]) != 30:
+        img = cv2.resize(img, (30, 60))
+    idTmp = 0
+    for i in range(len(img)):
+        for j in range(len(img[i])):
+            if j % 4 == 0:
+                b, g, r = img[i][j]
+                # 256 / 8 = 32 (cot 32)
+                # 7 / 8 = 0 (cot 0)
+                # thu tu RGB
+
+                # Lan nap cho R
+                idTmp = fun_getIndexVectorFromRGB(
+                    ColorValue= r,
+                    max_value_in_columns_per= max_value_in_columns_per,
+                    columns_per= columns_per,
+                    SoLan= 0
+                )
+                vector[idTmp] += 1
+
+                # Lan nap cho G
+                idTmp = fun_getIndexVectorFromRGB(
+                    ColorValue= g,
+                    max_value_in_columns_per= max_value_in_columns_per,
+                    columns_per= columns_per,
+                    SoLan= 1
+                )
+                vector[idTmp] += 1
+
+                # Lan nap cho B
+                idTmp = fun_getIndexVectorFromRGB(
+                    ColorValue= b,
+                    max_value_in_columns_per= max_value_in_columns_per,
+                    columns_per= columns_per,
+                    SoLan= 1
+                )
+                vector[idTmp] += 1
+    
+    return vector
+
 # function retun a vector
 def fun_image_to_vector_threading(csv, img):
     vector = []
@@ -70,5 +124,5 @@ if __name__ == '__main__':
     csv = fun_readFileCSV()
     img = cv2.imread('D:/imgs/OutCongNhan/cn_0.jpg')
     img = cv2.resize(img, (30, 60))
-    vector = fun_image_to_vector_threading(csv, img)
-
+    vector = fun_image_to_vector_myCustom(img)
+    print(vector)
