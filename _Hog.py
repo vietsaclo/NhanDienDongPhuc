@@ -10,9 +10,10 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.preprocessing import StandardScaler
 import pickle
+import ImageToVector as iv
 
-DIR_INPUT = 'D:/[AI]-NhanDangDongPhuc_Digitech/NhanDienDongPhuc/Data/Train'
-DIR_INPUT_TEST = 'D:/[AI]-NhanDangDongPhuc_Digitech/imgs/test'
+DIR_INPUT = 'Data/Train'
+DIR_INPUT_TEST = 'Data/Train/testTrue'
 
 def hog(img_gray, cell_size=8, block_size=2, bins=9):
     img = img_gray
@@ -59,8 +60,11 @@ def hog(img_gray, cell_size=8, block_size=2, bins=9):
     
     return feature_tensor.flatten() # 3780 features
 
-def fun_read_img_using_for_hog(img_path):
-    img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+def fun_read_img_using_for_hog(img_path, isGray: bool= True):
+    if isGray:
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+    else:
+        img = cv2.imread(img_path)
     img = cv2.resize(src=img, dsize=(64, 128))
     return img
 
@@ -80,6 +84,39 @@ def fun_hog_to_csv():
             # cv2.imshow('caiLoz', img)
             libs.fun_print_process(count= incree, max= _max)
             out_hog = hog(img)
+            if _dir == 'Valid':
+                arr_valid.append(out_hog)
+            else:
+                arr_nonValid.append(out_hog)
+            
+            incree += 1
+
+        incree = 0
+
+    print(arr_valid[0])
+    print(arr_nonValid[0])
+
+    # save file
+    dfs1 = pd.DataFrame(arr_valid)
+    dfs1.to_csv('./valid.csv', index = False)
+    dfs2 = pd.DataFrame(arr_nonValid)
+    dfs2.to_csv('./nonValid.csv', index = False)
+
+def fun_images_to_csv():
+    dir_trains = ['Valid', 'NonValid']
+    arr_valid = []
+    arr_nonValid = []
+
+    for _dir in dir_trains:
+        fileNames = libs.fun_getFileNames(DIR_INPUT + '/' + _dir)
+        # chay tung file va bat dau cho qua hog xac nhan
+        incree = 0
+        _max = len(fileNames)
+        for f in fileNames:
+            img_path = DIR_INPUT + '/' + _dir + '/' + f
+            img = fun_read_img_using_for_hog(img_path, isGray= False)
+            libs.fun_print_process(count= incree, max= _max)
+            out_hog = iv.fun_image_to_vector_myCustom(img)
             if _dir == 'Valid':
                 arr_valid.append(out_hog)
             else:
@@ -160,8 +197,8 @@ def fun_test_v1():
     model = fun_load_model()
     for f in libs.fun_getFileNames(DIR_INPUT_TEST):
         img_path = DIR_INPUT_TEST + '/' + f
-        img = fun_read_img_using_for_hog(img_path)
-        out_hog = hog(img)
+        img = fun_read_img_using_for_hog(img_path, isGray= False)
+        out_hog = iv.fun_image_to_vector_myCustom(img)
 
         # print(out_hog)
         arr = []
@@ -181,3 +218,4 @@ if __name__ == "__main__":
     fun_test_v1()
     # fun_train_and_save()
     # fun_hog_to_csv()
+    # fun_images_to_csv()
