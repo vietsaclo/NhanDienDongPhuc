@@ -33,8 +33,8 @@ def fun_getIndexVectorFromRGB(ColorValue, max_value_in_columns_per, columns_per,
 
 def fun_image_to_vector_myCustom(img):
     num_chanel = 3
-    columns_per = 32
-    max_value_in_columns_per = 8
+    columns_per = 64
+    max_value_in_columns_per = 4
 
     # initial values
     vector = []
@@ -120,9 +120,9 @@ def fun_image_to_vector(csv, img):
     print(end-start)
     return vector
 
-if __name__ == '__main__':
-    csv = fun_readFileCSV()
-    img = cv2.imread('D:/imgs/OutCongNhan/cn_0.jpg')
-    img = cv2.resize(img, (30, 60))
-    vector = fun_image_to_vector_myCustom(img)
-    print(vector)
+# if __name__ == '__main__':
+#     csv = fun_readFileCSV()
+#     img = cv2.imread('D:/imgs/OutCongNhan/cn_0.jpg')
+#     img = cv2.resize(img, (30, 60))
+#     vector = fun_image_to_vector_myCustom(img)
+#     print(vector)
