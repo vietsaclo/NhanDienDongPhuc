@@ -4,9 +4,9 @@ import argparse
 import numpy as np
 import os
 
-weightName = 'yolov3.weights'
-configName = 'yolov3.cfg'
-className = 'yolov3.txt'
+weightName = './Files/yolov3.weights'
+configName = './Files/yolov3.cfg'
+className = './Files/yolov3.txt'
 
 # ap = argparse.ArgumentParser()
 # ap.add_argument('-i', '--image', required=True,
@@ -135,14 +135,16 @@ if __name__ == '__main__':
     count_id = 109
 
     index = 0
-    DIR_ = 'D:/[AI]-NhanDangDongPhuc_Digitech/imgs'
-    fileNames = os.listdir(DIR_ + '/th')
+    DIR_ = 'D:/imgs/OutCongNhan'
+    fileNames = os.listdir(DIR_)
     max_ = len(fileNames)
     for i in range(max_):
-      fileName = DIR_ + '/th/' + fileNames[i]
+      fileName = DIR_ + '/' + fileNames[i]
       imageGet = fun_DetectObject(sourceImage= fileName)
       for I in range(len(imageGet)):
           imgResize = cv2.resize(imageGet[I][0], (200, 500))
-          cv2.imwrite(DIR_ + '/' + 'out_th/th_' + str(count_id) + '.jpg', imgResize)
-          count_id += 1
+          # cv2.imwrite(DIR_ + '/' + 'out_th/th_' + str(count_id) + '.jpg', imgResize)
+          # count_id += 1
+          cv2.imshow('f', imgResize)
+          cv2.waitKey()
       print('done: {0}/{1}'.format(i+1, max_))

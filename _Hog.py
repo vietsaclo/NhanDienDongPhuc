@@ -12,8 +12,16 @@ from sklearn.preprocessing import StandardScaler
 import pickle
 import ImageToVector as iv
 
-DIR_INPUT = 'Data/Train'
-DIR_INPUT_TEST = 'Data/Train/testTrue'
+# Config file
+DIR_INPUT = './Data/Train'
+DIR_INPUT_TEST = './Data/Train/testTrue'
+FILE_NAME_COLOR_MODEL_SVC = './Files/COLOR_MODEL_SVC.PKL'
+FILE_NAME_COLOR_NON_VALID = './Files/COLOR_NON_VALID.CSV'
+FILE_NAME_COLOR_VALID = './Files/COLOR_VALID.CSV'
+FILE_NAME_COLOR = './Files/COLOR.CSV'
+FILE_NAME_HOG_MODEL_SVC = './Files/HOG_MODEL_SVC.PKL'
+FILE_NAME_HOG_NON_VALID = './Files/HOG_NON_VALID.CSV'
+FILE_NAME_HOG_VALID = './Files/HOG_VALID.CSV'
 
 def hog(img_gray, cell_size=8, block_size=2, bins=9):
     img = img_gray
@@ -98,9 +106,9 @@ def fun_hog_to_csv():
 
     # save file
     dfs1 = pd.DataFrame(arr_valid)
-    dfs1.to_csv('./valid.csv', index = False)
+    dfs1.to_csv(FILE_NAME_HOG_VALID, index = False)
     dfs2 = pd.DataFrame(arr_nonValid)
-    dfs2.to_csv('./nonValid.csv', index = False)
+    dfs2.to_csv(FILE_NAME_HOG_NON_VALID, index = False)
 
 def fun_images_to_csv():
     dir_trains = ['Valid', 'NonValid']
@@ -131,13 +139,17 @@ def fun_images_to_csv():
 
     # save file
     dfs1 = pd.DataFrame(arr_valid)
-    dfs1.to_csv('./valid.csv', index = False)
+    dfs1.to_csv(FILE_NAME_COLOR_VALID, index = False)
     dfs2 = pd.DataFrame(arr_nonValid)
-    dfs2.to_csv('./nonValid.csv', index = False)
+    dfs2.to_csv(FILE_NAME_COLOR_NON_VALID, index = False)
 
-def fun_load_csv_panda(validName: str= './valid.cvs', nonValidName: str= './nonValid.csv') -> tuple:
-    valid = pd.read_csv('./valid.csv')
-    nonValid = pd.read_csv('./nonValid.csv')
+def fun_load_csv_panda(isHog: bool= True) -> tuple:
+    if isHog:
+        valid = pd.read_csv(FILE_NAME_HOG_VALID)
+        nonValid = pd.read_csv(FILE_NAME_HOG_NON_VALID)
+    else:
+        valid = pd.read_csv(FILE_NAME_COLOR_VALID)
+        nonValid = pd.read_csv(FILE_NAME_COLOR_NON_VALID)
 
     return valid, nonValid
 
@@ -152,8 +164,8 @@ def fun_getLabels(lenValid, lenNonValid)-> tuple:
     
     return df, df1
 
-def fun_train_and_save():
-    valid, nonValid = fun_load_csv_panda()
+def fun_train_and_save(isHog: bool= True):
+    valid, nonValid = fun_load_csv_panda(isHog= isHog)
     validLable, nonValidLabel = fun_getLabels(len(valid), len(nonValid))
 
     X = valid.append(nonValid, ignore_index=True)
@@ -176,7 +188,7 @@ def fun_train_and_save():
     print(confusion_matrix(y_test, pred_svc))
 
     #save model
-    filename = 'Model_SVC.pkl'
+    filename = FILE_NAME_HOG_MODEL_SVC if isHog else FILE_NAME_COLOR_MODEL_SVC
     pickle.dump(svc, open(filename, 'wb'))
 
 def fun_load_model(path: str= './Model_SVC.pkl'):
@@ -215,7 +227,7 @@ def fun_test_v1():
         cv2.waitKey()
 
 if __name__ == "__main__":
-    fun_test_v1()
-    # fun_train_and_save()
+    # fun_test_v1()
+    fun_train_and_save(isHog= False)
     # fun_hog_to_csv()
     # fun_images_to_csv()
