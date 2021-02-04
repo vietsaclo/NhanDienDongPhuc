@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 Data/Train/
 yolov3.weights
+*.csv
+*.pkl
