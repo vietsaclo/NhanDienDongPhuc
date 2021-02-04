@@ -132,7 +132,7 @@ def fun_DetectObject(sourceImage, classesName= 0, isShowDetectionFull: bool= Fal
   return imgsGet
 
 if __name__ == '__main__':
-    count_id = 109
+    count_id = 0
 
     index = 0
     DIR_ = 'D:/imgs/OutCongNhan'
