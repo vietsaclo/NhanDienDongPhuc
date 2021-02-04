@@ -120,9 +120,9 @@ def fun_image_to_vector(csv, img):
     print(end-start)
     return vector
 
-# if __name__ == '__main__':
-#     csv = fun_readFileCSV()
-#     img = cv2.imread('D:/imgs/OutCongNhan/cn_0.jpg')
-#     img = cv2.resize(img, (30, 60))
-#     vector = fun_image_to_vector_myCustom(img)
-#     print(vector)
+if __name__ == '__main__':
+    csv = fun_readFileCSV()
+    img = cv2.imread('D:/[AI]-NhanDangDongPhuc_Digitech/PhanTichMau/images_cn/cn_0.jpg')
+    img = cv2.resize(img, (30, 60))
+    vector = fun_image_to_vector_myCustom(img)
+    print(vector)

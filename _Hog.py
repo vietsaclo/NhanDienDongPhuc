@@ -228,6 +228,6 @@ def fun_test_v1():
 
 if __name__ == "__main__":
     # fun_test_v1()
-    fun_train_and_save(isHog= False)
+    fun_train_and_save()
     # fun_hog_to_csv()
     # fun_images_to_csv()
