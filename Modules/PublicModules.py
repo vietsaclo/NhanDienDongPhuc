@@ -15,6 +15,9 @@ def fun_print(name: str, value) -> None:
 def fun_getFileNames(path: str) -> list:
     return os.listdir(path)
 
+def fun_show_img(mat: str= 'f', img= None):
+    cv2.imshow(mat, img)
+    cv2.waitKey()
 
 def fun_showVideoPath(path: str, delay: int = 25, title= 'frame') -> None:
     cap = cv2.VideoCapture(path)

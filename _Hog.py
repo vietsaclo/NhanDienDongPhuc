@@ -14,7 +14,7 @@ import ImageToVector as iv
 
 # Config file
 DIR_INPUT = './Data/Train'
-DIR_INPUT_TEST = './Data/Train/testTrue'
+DIR_INPUT_TEST = './Data/Train/valid'
 FILE_NAME_COLOR_MODEL_SVC = './Files/COLOR_MODEL_SVC.PKL'
 FILE_NAME_COLOR_NON_VALID = './Files/COLOR_NON_VALID.CSV'
 FILE_NAME_COLOR_VALID = './Files/COLOR_VALID.CSV'
@@ -89,7 +89,6 @@ def fun_hog_to_csv():
         for f in fileNames:
             img_path = DIR_INPUT + '/' + _dir + '/' + f
             img = fun_read_img_using_for_hog(img_path)
-            # cv2.imshow('caiLoz', img)
             libs.fun_print_process(count= incree, max= _max)
             out_hog = hog(img)
             if _dir == 'Valid':
@@ -191,8 +190,14 @@ def fun_train_and_save(isHog: bool= True):
     filename = FILE_NAME_HOG_MODEL_SVC if isHog else FILE_NAME_COLOR_MODEL_SVC
     pickle.dump(svc, open(filename, 'wb'))
 
-def fun_load_model(path: str= './Model_SVC.pkl'):
-    clf = pickle.load(open(path, 'rb'))
+# def fun_load_model(path: str= './Model_SVC.pkl'):
+#     clf = pickle.load(open(path, 'rb'))
+#     return clf
+def fun_load_model(isHog: bool= True):
+    if isHog:
+        clf = pickle.load(open(FILE_NAME_HOG_MODEL_SVC,'rb'))
+    else: 
+        clf = pickle.load(open(FILE_NAME_COLOR_MODEL_SVC,'rb'))
     return clf
 
 def fun_putText(image, mess):
@@ -206,9 +211,12 @@ def fun_putText(image, mess):
     return image
 
 def fun_test_v1():
-    model = fun_load_model()
+    model_hog = fun_load_model(isHog=False)
+    model_color = fun_load_model(isHog=True)
+
     for f in libs.fun_getFileNames(DIR_INPUT_TEST):
         img_path = DIR_INPUT_TEST + '/' + f
+        print('img_path:',img_path)
         img = fun_read_img_using_for_hog(img_path, isGray= False)
         out_hog = iv.fun_image_to_vector_myCustom(img)
 
@@ -216,15 +224,86 @@ def fun_test_v1():
         arr = []
         arr.append(out_hog)
 
-        pre = model.predict(arr)
-        img = cv2.resize(img, (int(720 * 0.6), int(1280 * 0.6)))
-        if pre == 0:
-            img = fun_putText(img, 'TH')
-        else:
-            img = fun_putText(img, 'CN')
+        pre = model_hog.predict(arr)
         
-        cv2.imshow('pre', img)
-        cv2.waitKey()
+        if pre == 1:
+            img_color = fun_read_img_using_for_hog(img_path, isGray=True)
+            out_hog2 = hog(img_color)
+            arr1 = []
+            arr1.append(out_hog2)
+            pre_color = model_color.predict(arr1)
+
+            img = cv2.resize(img_color, (int(720 * 0.6), int(1280 * 0.6)))
+            
+            if pre_color == 0:
+                img = fun_putText(img, 'TH')
+            else:
+                img = fun_putText(img, 'CN')
+            
+            cv2.imshow('pre_color', img)
+            cv2.waitKey()
+        else:
+            img = cv2.resize(img, (int(720 * 0.6), int(1280 * 0.6)))
+            img = fun_putText(img, 'TH')
+            cv2.imshow('pre_hog', img)
+            cv2.waitKey()
+
+            
+
+        # img = cv2.resize(img, (int(720 * 0.6), int(1280 * 0.6)))
+        # if pre == 0:
+        #     img = fun_putText(img, 'TH')
+        # else:
+        #     img = fun_putText(img, 'CN')
+        
+        # cv2.imshow('pre', img)
+        # cv2.waitKey()
+
+def fun_test_v2():
+    # Load 2 model vao ram
+    model_color = fun_load_model(isHog= False)
+    model_hog = fun_load_model(isHog= True)
+
+    url = 0
+
+    cap = cv2.VideoCapture(url)
+
+    while True:
+        isContinue, frame = cap.read()
+        if not isContinue:
+            break
+
+        img = cv2.resize(src=frame, dsize=(64, 128))
+        out_hog = iv.fun_image_to_vector_myCustom(img)
+
+        # print(out_hog)
+        arr = []
+        arr.append(out_hog)
+
+        pre = model_color.predict(arr)
+
+        status = False
+        
+        if pre == 1:
+            img_color = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            out_hog2 = hog(img_color)
+            arr1 = []
+            arr1.append(out_hog2)
+            pre_color = model_hog.predict(arr1)
+
+            img = cv2.resize(img_color, (int(720 * 0.6), int(1280 * 0.6)))
+            
+            if pre_color == 1:
+                status = True
+
+        if status:
+            img = fun_putText(img, 'CNNNN')
+        else:
+            img = fun_putText(img, 'TH')
+
+        cv2.imshow('f', img)
+        cv2.waitKey(1)
+
 
 if __name__ == "__main__":
     # fun_test_v1()
