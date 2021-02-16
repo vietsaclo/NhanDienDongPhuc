@@ -11,6 +11,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.preprocessing import StandardScaler
 import pickle
 import ImageToVector as iv
+import yolov3
 
 # Config file
 DIR_INPUT = './Data/Train'
@@ -259,15 +260,44 @@ def fun_test_v1():
         # cv2.imshow('pre', img)
         # cv2.waitKey()
 
+def fun_test_hog():
+    model_hog = fun_load_model(isHog= True)
+
+    url = 'F:/videoTest.mp4'
+
+    cap = cv2.VideoCapture(url)
+    while True:
+        isContinue, frame = cap.read()
+        if not isContinue:
+            break
+
+        img = cv2.resize(src=frame, dsize=(64, 128))
+        img_color = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        out_hog = hog(img_color)
+
+        # print(out_hog)
+        arr = []
+        arr.append(out_hog)
+
+        pre = model_hog.predict(arr)
+
+        img = cv2.resize(img, (300, 600))
+        if pre[0] == 0:
+            img = fun_putText(img, 'TH')
+        else:
+            img = fun_putText(img, 'CNNN')
+        cv2.imshow('f', img)
+        cv2.waitKey(10)
+
 def fun_test_v2():
     # Load 2 model vao ram
     model_color = fun_load_model(isHog= False)
     model_hog = fun_load_model(isHog= True)
 
-    url = 0
+    url = 'F:/videoTest.mp4'
 
     cap = cv2.VideoCapture(url)
-
+    count = 0
     while True:
         isContinue, frame = cap.read()
         if not isContinue:
@@ -285,6 +315,8 @@ def fun_test_v2():
         status = False
         
         if pre == 1:
+            print('asdfs' + str(count))
+            count += 1
             img_color = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             out_hog2 = hog(img_color)
             arr1 = []
@@ -302,11 +334,83 @@ def fun_test_v2():
             img = fun_putText(img, 'TH')
 
         cv2.imshow('f', img)
+        cv2.waitKey(10)
+
+def fun_detect_with_color(model_color, frame):
+    try:
+        img = cv2.resize(frame, (64, 128))
+        img = iv.fun_image_to_vector_myCustom(img)
+
+        arr = []
+        arr.append(img)
+
+        pre = model_color.predict(arr)
+        return pre[0]
+    except:
+        return 0
+
+def fun_detect_with_hog(model_hog, frame):
+    try:
+        img = cv2.resize(frame, (64, 128))
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = hog(img)
+
+        arr = []
+        arr.append(img)
+
+        pre = model_hog.predict(arr)
+        return pre[0]
+    except:
+        return 0
+
+def fun_detect_camera_readTime(urlVideo):
+    # Load 2 model vao ram
+    model_color = fun_load_model(isHog= False)
+    model_hog = fun_load_model(isHog= True)
+
+    url = urlVideo
+    cap = cv2.VideoCapture(url)
+    count = 0
+    while True:
+        isContinue, frame = cap.read()
+        if not isContinue:
+            break
+
+        height, width, _ = frame.shape
+        frame = cv2.resize(frame, (int(width * 0.7), int(height * 0.7)))
+        img_show = frame.copy()
+        _, imageGets = yolov3.fun_DetectObject(sourceImage= frame)
+        
+        # Da lay duoc ta ca nguoi
+        for person in imageGets:
+            status = False
+            color_predict = fun_detect_with_color(model_color= model_color, frame= person[0])
+            if color_predict == 1:
+                print(count)
+                count += 1
+                hog_predict = fun_detect_with_hog(model_hog= model_hog, frame= person[0])
+                if hog_predict == 1:
+                    status = True
+            
+            if status:
+                yolov3.draw_prediction(
+                        img= img_show,
+                        class_id= 'Digitech',
+                        confidence= 'None',
+                        x = person[1][2],
+                        y= person[1][0],
+                        x_plus_w= person[1][3],
+                        y_plus_h= person[1][1]
+                    )
+        
+        cv2.imshow('Detection', img_show)
         cv2.waitKey(1)
 
-
 if __name__ == "__main__":
-    # fun_test_v1()
-    fun_train_and_save(isHog= True)
+    # fun_test_hog()
+    fun_detect_camera_readTime(0)
+    # fun_test_v2()
+    # fun_detect_camera_readTime(urlVideo= 0)
+    # fun_train_and_save(isHog= True)
     # fun_hog_to_csv()
     # fun_images_to_csv()

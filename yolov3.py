@@ -28,9 +28,12 @@ def get_output_layers(net):
 
 
 def draw_prediction(img, class_id, confidence, x, y, x_plus_w, y_plus_h):
-    label = str(classes[class_id])
-
-    color = COLORS[class_id]
+    if type(class_id) is str:
+      label = class_id
+      color = COLORS[0]
+    else:
+      label = str(classes[class_id])
+      color = COLORS[class_id]
 
     cv2.rectangle(img, (x, y), (x_plus_w, y_plus_h), color, 2)
 
@@ -129,22 +132,22 @@ def fun_DetectObject(sourceImage, classesName= 0, isShowDetectionFull: bool= Fal
     cv2.imshow('ff' ,image)
     cv2.waitKey()
   print('Len '+ classes[classesName] + ' Detection: ' + str(len(imgsGet)))
-  return imgsGet
+  return image, imgsGet
 
-if __name__ == '__main__':
-    count_id = 0
+# if __name__ == '__main__':
+#     count_id = 0
 
-    index = 0
-    DIR_ = 'D:/imgs/OutCongNhan'
-    fileNames = os.listdir(DIR_)
-    max_ = len(fileNames)
-    for i in range(max_):
-      fileName = DIR_ + '/' + fileNames[i]
-      imageGet = fun_DetectObject(sourceImage= fileName)
-      for I in range(len(imageGet)):
-          imgResize = cv2.resize(imageGet[I][0], (200, 500))
-          # cv2.imwrite(DIR_ + '/' + 'out_th/th_' + str(count_id) + '.jpg', imgResize)
-          # count_id += 1
-          cv2.imshow('f', imgResize)
-          cv2.waitKey()
-      print('done: {0}/{1}'.format(i+1, max_))
+#     index = 0
+#     DIR_ = 'D:/imgs/OutCongNhan'
+#     fileNames = os.listdir(DIR_)
+#     max_ = len(fileNames)
+#     for i in range(max_):
+#       fileName = DIR_ + '/' + fileNames[i]
+#       imageGet = fun_DetectObject(sourceImage= fileName)
+#       for I in range(len(imageGet)):
+#           imgResize = cv2.resize(imageGet[I][0], (200, 500))
+#           # cv2.imwrite(DIR_ + '/' + 'out_th/th_' + str(count_id) + '.jpg', imgResize)
+#           # count_id += 1
+#           cv2.imshow('f', imgResize)
+#           cv2.waitKey()
+#       print('done: {0}/{1}'.format(i+1, max_))
